@@ -248,6 +248,162 @@
             
               
                 
+                <a class="post-title-link" href="2016/07/29/关于Android主题切换方案的讨论/" itemprop="url">
+                  关于Android主题切换方案的讨论
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-29T23:14:16+08:00" content="2016-07-29">
+              2016-07-29
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="2016/07/29/关于Android主题切换方案的讨论/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/29/关于Android主题切换方案的讨论/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>公司这期要求在Android端产品中增加主题切换的功能，因此对于现在Android应用的主题切换方案在网络上进行了搜集，结合实际需求，提出了相应的方案。现对比较流行、常用的方案进行下讨论和记录。</p>
+<h2 id="市面上比较流行的方案列举"><a href="#市面上比较流行的方案列举" class="headerlink" title="市面上比较流行的方案列举"></a>市面上比较流行的方案列举</h2><ol>
+<li>通过在<code>values</code>文件夹下的<code>attrs.xml</code>和<code>style.xml</code>文件中配置不同的风格的主题，在<code>Activity</code>中的<code>onCreate()</code>方法中，调用<code>setContentView()</code>方法前调用<code>setTheme()</code>方法来设置主题。</li>
+<li>通过将资源文件打包为APK的方式，在代码中对APK进行下载、解包操作，获取其中的相应资源加载到项目中，实现动态的主题切换。</li>
+<li>使用压缩包对资源进行压缩，下载到设备SD卡上，利用代码进行解压缩获取内含的资源文件进行使用，理论上可行，类似方案二。</li>
+<li>主题样式不使用xml文件定义，代码实现主题样式效果工具类；框架层提供功能方法，<code>View</code>及其组件代码设置样式属性，动态加载改变主题。</li>
+</ol>
+<h2 id="上述方案优缺点的讨论"><a href="#上述方案优缺点的讨论" class="headerlink" title="上述方案优缺点的讨论"></a>上述方案优缺点的讨论</h2><p>总结来看就是上述四种，其他无非上述几种方案的相互组合。这四种方案各有优缺点，比较好的方式还是根据实际需求进行取舍，谋求优点的最大化。</p>
+<p>###讨论</p>
+<blockquote>
+<p>方案一</p>
+</blockquote>
+<p>代码量少，工作量基本在于样式文件的配置，易懂易学也易于实现；<br>笨重，灵活性较低，不易于扩展。线上应用需要更新才能获取新的主题，适用于“一次性应用”和实验性质的demo。</p>
+<blockquote>
+<p>方案二</p>
+</blockquote>
+<p>可以动态的扩展主题，包中资源较少，不需要进行应用的整体更新，很多成熟应用都在用该方案作为主题框架的一部分；<br>有一定开发难度，需要适配不同机型（尤其是不同厂家的定制ROM），扩展性和灵活性仍然有所欠缺。</p>
+<blockquote>
+<p>方案三</p>
+</blockquote>
+<p>可以动态的扩展主题，不需要整体更新；<br>需要手动配置资源，手写资源读取优化工具类，很少采用。</p>
+<blockquote>
+<p>方案四</p>
+</blockquote>
+<p>相对于前三种方案，方案四更加的灵活，具体的实现方式也有很多种（有难有易），举例来说。</p>
+<ol>
+<li>第一种，在<code>Framework</code>层进行代码修改，便于实现动态部署，客户端的代码量少，apk包小；难度很大，毕竟更加深入，需要丰富的底层知识，出错几率大，例如MIUI的深层定制。</li>
+<li>第二种，重写<code>Resouce</code>类，可以在类中资源的选择逻辑。相当于把资源选择逻辑做了一次封装，上层代码直接调用<code>context.getResouce()</code>方法即可和往常一样使用。但还是有些不够灵活，通常搭配其他方案使用。</li>
+<li>第三种，布局初始化过程中，保留<code>View</code>的引用，每次更换主题时遍历一遍这些引用，进行颜色、图片等主题资源的重新设置，或者不保留<code>View</code>引用，直接递归遍历页面内的所有<code>View</code>对象，来进行主题资源的设置。这种方案也是GitHub上很多Android主题切换框架采用的方案（或者是方案的一部分）。实现方案的大概思路是自定义<code>LayoutInflater.Factory</code>类设置到<code>Activity</code>的<code>LayoutInflater</code>对象中去，在解析xml布局时遍历<code>View</code>树进行选择性保留。但是这种方案存在缺陷，就是无法对代码中动态的设置产生作用。</li>
+</ol>
+<p>##继续讨论</p>
+<p>鉴于上面的讨论，可以看出每种方案都不是完美的。需要根据实际情况结合起来进行使用，例如可以通过重写一个封装了资源选择逻辑的<code>Resource</code>类与方案四的第三种情况结合使用，在布局实例化时记录一次，在动态设置时（例如调用setTextColor方法）经过<code>Resource</code>进行动态的逻辑判断返回合适的资源；</p>
+<p>再比如可以将方案二和方案四整合到一个主题切换框架中去，增加框架的扩展性和灵活性。</p>
+<p>对于页面比较多的应用来说，在页面栈中留存有不少页面时进行主题切换，如何通知这些留存页面进行主题切换也是一个需要思考的问题，这时可以用观察者模式进行解决。还需要考虑到大量页面进行主题切换的开销可能导致的OOM…等等</p>
+<hr>
+<h4 id="版权声明"><a href="#版权声明" class="headerlink" title="版权声明"></a>版权声明</h4><p>  本作品采用<a href="https://creativecommons.org/licenses/by/2.5/cn/" target="_blank" rel="external">知识共享署名 2.5 中国大陆许可协议</a> 进行许可，欢迎转载，但转载请注明来自<a href="https://liulinru13.github.io" target="_blank" rel="external">mmrx</a>，并保持转载后文章内容的完整。本人保留所有版权相关权利。</p>
+<p>本文链接：<a href="http://yoursite.com/2016/07/29/关于Android主题切换方案的讨论/">http://yoursite.com/2016/07/29/关于Android主题切换方案的讨论/</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="2016/07/27/Android-Studio日常问题系列/" itemprop="url">
                   Android Studio日常问题系列
                 </a>
@@ -336,6 +492,9 @@
 </blockquote>
 <p>经过搜索相关答案后，问题原因是Gradle的配置文件没有完整。<br>解决方案：</p>
 <p>在project的build.gradle文件中，<code>apply plugin: &#39;com.android.application&#39;</code>之后的配置应该是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">buildscript&#123;</div><div class="line">    repositories&#123;</div><div class="line">        //本地仓库配置</div><div class="line">        //flatDir&#123;</div><div class="line">        //    dirs &apos;libs&apos;</div><div class="line">        //&#125;</div><div class="line">        mavenCentral()</div><div class="line">        //maven仓库</div><div class="line">        //或者是 jcenter()</div><div class="line">    &#125;</div><div class="line">   </div><div class="line">   	dependencies&#123;</div><div class="line">   	//gradle的版本</div><div class="line">       classpath &apos;com.android.tools.build:gradle:2.0.0&apos;</div><div class="line">   	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<hr>
+<h4 id="版权声明"><a href="#版权声明" class="headerlink" title="版权声明"></a>版权声明</h4><p>  本作品采用<a href="https://creativecommons.org/licenses/by/2.5/cn/" target="_blank" rel="external">知识共享署名 2.5 中国大陆许可协议</a> 进行许可，欢迎转载，但转载请注明来自<a href="https://liulinru13.github.io" target="_blank" rel="external">mmrx</a>，并保持转载后文章内容的完整。本人保留所有版权相关权利。</p>
+<p>本文链接：<a href="http://yoursite.com/2016/07/27/Android-Studio日常问题系列/">http://yoursite.com/2016/07/27/Android-Studio日常问题系列/</a></p>
 
           
         
@@ -445,6 +604,9 @@
 <p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
 <h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+<hr>
+<h4 id="版权声明"><a href="#版权声明" class="headerlink" title="版权声明"></a>版权声明</h4><p>  本作品采用<a href="https://creativecommons.org/licenses/by/2.5/cn/" target="_blank" rel="external">知识共享署名 2.5 中国大陆许可协议</a> 进行许可，欢迎转载，但转载请注明来自<a href="https://liulinru13.github.io" target="_blank" rel="external">mmrx</a>，并保持转载后文章内容的完整。本人保留所有版权相关权利。</p>
+<p>本文链接：<a href="http://yoursite.com/2016/07/24/hello-world/">http://yoursite.com/2016/07/24/hello-world/</a></p>
 
           
         
@@ -514,7 +676,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="index.html">
-              <span class="site-state-item-count">2</span>
+              <span class="site-state-item-count">3</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -522,7 +684,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">3</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -531,7 +693,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
