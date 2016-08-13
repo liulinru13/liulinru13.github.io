@@ -29,8 +29,8 @@ hexo.extend.filter.register('before_post_render', function(data){
 	}
 	
 	// Add permalink
-	var permalink = '\n本文链接：' + data.permalink;
-	data.content += permalink;
+	//var permalink = '\n本文链接：' + data.permalink;
+	//data.content += permalink;
 	
 	return data;
 });
