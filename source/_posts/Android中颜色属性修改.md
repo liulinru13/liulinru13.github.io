@@ -11,13 +11,11 @@ categories:
 颜色设置有这样几种方式
 
 1. 使用`Color`类的常量来创建或者表示一个颜色。
-
 ```
 int color = Color.BLACK;
 ```
 
 2. 根据ARGB或者RGB值来取值。
-
 ```
 int color = Color.argb(127,255,0,255);
 int color1 = Color.rgb(255,0,255);
